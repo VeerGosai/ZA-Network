@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NMBINX Internal Structure</title>
+    <link rel="stylesheet" href="../styles.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            padding: 20px;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #3498db;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        .structure-content {
+            padding: 20px;
+            border: 1px solid #eaeaea;
+            border-radius: 5px;
+            background-color: #f9f9fa;
+        }
+        
+        .external-links {
+            margin: 15px 0;
+            padding: 10px;
+            background-color: #f5f5f5;
+            border-radius: 4px;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .weather-map-btn {
+            display: inline-block;
+            background-color: #3498db;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: 500;
+            margin-top: 10px;
+            transition: background-color 0.2s;
+        }
+        
+        .weather-map-btn:hover {
+            background-color: #2980b9;
+        }
+        
+        .single-node-viz {
+            width: 100%;
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 30px 0;
+        }
+        
+        .nmbinx-node {
+            width: 100px;
+            height: 100px;
+            background-color: #8e44ad;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+    <a href="../index.html" class="back-link">← Back to main visualization</a>
+    <h1>NMBINX Internal Structure</h1>
+    
+    <div class="structure-content">
+        <h2>Nelson Mandela Bay Internet Exchange</h2>
+        
+        <div class="external-links">
+            <h3>External Resources</h3>
+            <p>View real-time traffic and status information on the INX Portal:</p>
+            <a href="https://portal.inx.net.za/weather-map/4" class="weather-map-btn" target="_blank">
+                View NMBINX Weather Map →
+            </a>
+        </div>
+        
+        <p>NMBINX is located in a single facility in Nelson Mandela Bay, providing exchange services with a simplified architecture.</p>
+        
+        <div class="single-node-viz">
+            <div class="nmbinx-node">NMBINX</div>
+        </div>
+        
+        <div class="topology-details">
+            <h3>Network Details</h3>
+            <p>Unlike the other exchanges, NMBINX operates from a single location with a streamlined infrastructure:</p>
+            <ul>
+                <li>Single facility deployment for efficient operations</li>
+                <li>Direct connections to participating networks</li>
+                <li>Serves the Nelson Mandela Bay metropolitan area</li>
+            </ul>
+            <p>This focused approach allows for optimized connectivity in the Eastern Cape region.</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,686 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+body {
+    background-color: #f8f9fa;
+    overflow: hidden;
+    color: #333;
+}
+
+header {
+    background-color: #2c3e50;
+    color: white;
+    padding: 1rem;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+main {
+    display: flex;
+    height: calc(100vh - 60px);
+}
+
+/* Filter panel styling */
+#filter-panel {
+    width: 220px;
+    background-color: #fff;
+    border-right: 1px solid #eaeaea;
+    padding: 1rem;
+    overflow-y: auto;
+    overflow-x: hidden; /* Prevent horizontal scrolling */
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+}
+
+#filter-panel h2 {
+    color: #2c3e50;
+    margin-bottom: 15px;
+    font-size: 1.3rem;
+    font-weight: 500;
+}
+
+#filter-panel h3 {
+    color: #3498db;
+    margin: 10px 0;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.filter-section {
+    margin-bottom: 20px;
+}
+
+/* Filter item styling improvements */
+.filter-item {
+    display: flex;
+    align-items: flex-start; /* Changed from center to flex-start */
+    margin: 8px 0;
+    cursor: pointer;
+    padding-right: 5px; /* Add some right padding */
+}
+
+.filter-checkbox {
+    margin-right: 8px;
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+.filter-label {
+    font-size: 0.9rem;
+    cursor: pointer;
+    overflow-wrap: break-word; /* Allow text to wrap within the label */
+    word-break: break-word;
+    hyphens: auto;
+    flex-grow: 1;
+    line-height: 1.2; /* Improve readability of wrapped text */
+    padding-top: 1px; /* Slight adjustment for alignment */
+}
+
+.filter-indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 8px;
+    background-color: #c0392b; /* IX color */
+    flex-shrink: 0; /* Prevent the circle from shrinking */
+    margin-top: 3px; /* Align with first line of text when wrapped */
+}
+
+/* Filter controls */
+.filter-controls {
+    display: flex;
+    gap: 8px;
+    margin-top: 15px;
+    padding-top: 10px;
+    border-top: 1px solid #eaeaea;
+}
+
+.filter-btn {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex: 1;
+}
+
+.filter-btn:hover {
+    background-color: #e9ecef;
+}
+
+.filter-count {
+    font-size: 0.8rem;
+    color: #6c757d;
+    margin-left: 5px;
+    white-space: nowrap; /* Keep the count on a single line */
+}
+
+/* Visualization container */
+#visualization {
+    flex: 1;
+    background-color: #fff;
+    border-right: 1px solid #eaeaea;
+    position: relative;
+}
+
+#info-panel {
+    width: 280px;
+    padding: 1.5rem;
+    background-color: #fff;
+    overflow-y: auto;
+    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.05);
+}
+
+#info-panel h2 {
+    margin-bottom: 1rem;
+    color: #2c3e50;
+    font-weight: 500;
+    font-size: 1.4rem;
+}
+
+#info-panel h3 {
+    margin: 1rem 0;
+    color: #3498db;
+    font-weight: 500;
+}
+
+/* Node styling */
+.node text {
+    font-size: 9px;
+    text-anchor: middle;
+    pointer-events: none;
+    fill: #555;
+    font-weight: 400;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
+    opacity: 0.9;
+}
+
+.node circle {
+    stroke: #fff;
+    stroke-width: 1.5px;
+    cursor: pointer;
+    transition: all 0.3s ease; /* Add transition for smooth scaling */
+}
+
+/* Selected node styling */
+.node.selected circle {
+    transform: scale(2);
+    transition: transform 0.3s ease;
+}
+
+/* Connected node styling - make them grow but slightly smaller than the selected node */
+.node.connected-node circle {
+    transform: scale(1.5);
+    transition: transform 0.3s ease;
+}
+
+/* Network nodes (from data.csv) */
+.node circle.network {
+    fill: #3498db; /* Cleaner blue color */
+    stroke-width: 1px;
+}
+
+/* Company nodes (from companies.csv) */
+.node circle.company {
+    fill: #e74c3c; /* Cleaner red color */
+    stroke-width: 1px;
+}
+
+/* IX nodes (from ix.csv) */
+.node circle.ix {
+    fill: #c0392b; /* Deeper red for IX nodes */
+    stroke-width: 2px;
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));
+}
+
+/* Link styling */
+.link {
+    stroke: #888;
+    stroke-opacity: 0.35;
+    stroke-width: 1.5px;
+}
+
+/* Link styling overrides */
+.link.ix-connection {
+    /* Base styles for IX connections - will be overridden by inline stroke attribute */
+    stroke-opacity: 0.5;
+    stroke-width: 2px;
+}
+
+.link.company-connection {
+    stroke: #999;
+    stroke-opacity: 0.3;
+    stroke-width: 1.5px;
+}
+
+/* Highlighted IX links should be even more prominent */
+.link.ix-connection.highlighted-link {
+    stroke: #ffeb3b; /* Yellow for highlighted IX connections */
+    stroke-opacity: 0.9 !important;
+    stroke-width: 3px !important;
+    filter: drop-shadow(0 0 4px rgba(255, 235, 59, 0.5)); /* Added subtle glow */
+}
+
+/* Highlighted company links */
+.link.company-connection.highlighted-link {
+    stroke: #ffeb3b; /* Yellow for highlighted company connections */
+    stroke-opacity: 0.8 !important;
+    stroke-width: 2.5px !important;
+    filter: drop-shadow(0 0 3px rgba(255, 235, 59, 0.4)); /* Added subtle glow */
+}
+
+/* General link highlighting */
+.link.highlighted-link {
+    stroke: #ffeb3b; /* Bright yellow for all highlighted links */
+    stroke-opacity: 0.8;
+    stroke-width: 2.5px;
+    z-index: 1;
+    filter: drop-shadow(0 0 3px rgba(255, 235, 59, 0.4));
+}
+
+/* Node highlighting styles */
+.node.highlighted-source circle {
+    stroke: #f39c12; /* Golden stroke for source node */
+    stroke-width: 3px;
+    filter: drop-shadow(0 0 4px rgba(243, 156, 18, 0.4));
+}
+
+.node.highlighted-connection circle {
+    fill: #f1c40f; /* Yellow for connected nodes */
+    stroke: #f39c12; /* Golden stroke */
+    stroke-width: 2px;
+    filter: drop-shadow(0 0 3px rgba(241, 196, 15, 0.3));
+}
+
+.link.highlighted-link {
+    stroke: #f39c12; /* Golden for highlighted links */
+    stroke-opacity: 0.8;
+    stroke-width: 2px;
+    z-index: 1;
+}
+
+/* Detail panel styling */
+#node-details {
+    margin-top: 1rem;
+    line-height: 1.5;
+}
+
+#node-details p {
+    margin-bottom: 0.6rem;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.detail-label {
+    font-weight: 500;
+    color: #555;
+    margin-right: 1rem;
+    flex-basis: 30%;
+}
+
+.detail-value {
+    word-break: break-all;
+    color: #333;
+    flex-basis: 65%;
+}
+
+hr {
+    margin: 15px 0;
+    border: 0;
+    height: 1px;
+    background: #eaeaea;
+}
+
+/* Zoom controls */
+.zoom-controls {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    background-color: #fff;
+    padding: 8px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    display: flex;
+    gap: 5px;
+}
+
+.zoom-controls button {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    font-size: 18px;
+    line-height: 1;
+    color: #2c3e50;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.zoom-controls button:hover {
+    background-color: #eaeaea;
+}
+
+/* Hover effects */
+.node:hover circle {
+    filter: brightness(1.1) drop-shadow(0 0 3px rgba(0,0,0,0.2));
+}
+
+/* Connection details styling */
+.connection-section {
+    margin-bottom: 20px;
+}
+
+.connection-section h4 {
+    font-size: 14px;
+    margin-bottom: 8px;
+    color: #2c3e50;
+    font-weight: 500;
+}
+
+.connected-nodes-list {
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #eaeaea;
+    border-radius: 4px;
+    background: #f9f9fa;
+}
+
+.connected-node {
+    padding: 8px 10px;
+    display: flex;
+    flex-direction: column;
+    border-bottom: 1px solid #eaeaea;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.connected-node:last-child {
+    border-bottom: none;
+}
+
+.connected-node:hover {
+    background-color: #f0f0f0;
+}
+
+.node-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 8px;
+    display: inline-block;
+}
+
+.network-node .node-indicator {
+    background-color: #3498db;
+}
+
+.company-node .node-indicator {
+    background-color: #e74c3c;
+}
+
+.ix-node .node-indicator {
+    background-color: #c0392b;
+}
+
+.node-name {
+    flex-grow: 1;
+    font-size: 13px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.node-asn {
+    font-size: 11px;
+    color: #666;
+    margin-left: 5px;
+}
+
+hr {
+    margin: 15px 0;
+    border: 0;
+    height: 1px;
+    background: #eaeaea;
+}
+
+/* Make details panel headers consistent */
+#info-panel h3 {
+    color: #2c3e50;
+    font-weight: 500;
+    margin-bottom: 15px;
+    font-size: 16px;
+}
+
+/* Node hiding for filtered nodes */
+.node.hidden {
+    display: none;
+}
+
+.link.hidden {
+    display: none;
+}
+
+/* Search styling */
+.search-container {
+    display: flex;
+    margin-bottom: 10px;
+    position: relative;
+}
+
+#search-input {
+    width: 100%;
+    padding: 8px 30px 8px 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+#search-input:focus {
+    border-color: #3498db;
+    outline: none;
+    box-shadow: 0 0 3px rgba(52, 152, 219, 0.3);
+}
+
+#search-clear {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    border: none;
+    background: none;
+    cursor: pointer;
+    color: #999;
+    font-size: 14px;
+    display: none; /* Hidden by default */
+}
+
+#search-clear:hover {
+    color: #333;
+}
+
+#search-results {
+    font-size: 12px;
+    color: #666;
+    margin-top: 5px;
+    margin-bottom: 10px;
+}
+
+/* Highlighted search results */
+.node.search-match circle {
+    stroke: #ffcc00;
+    stroke-width: 3px;
+    filter: drop-shadow(0 0 3px rgba(255, 204, 0, 0.5));
+    transform: scale(1.5);
+    transition: transform 0.3s ease;
+}
+
+.node.search-highlight circle {
+    stroke: #ff9900;
+    stroke-width: 4px;
+    filter: drop-shadow(0 0 5px rgba(255, 153, 0, 0.6));
+    transform: scale(2); /* Make the exact match grow to the same size as selected nodes */
+    transition: transform 0.3s ease;
+}
+
+/* Connected nodes in details panel */
+.connected-section {
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
+.connected-section h4 {
+    font-size: 14px;
+    color: #3498db;
+    margin-bottom: 8px;
+}
+
+.connected-nodes-list.small-list {
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #eaeaea;
+    border-radius: 4px;
+    background: #f9f9fa;
+}
+
+.show-more-btn {
+    text-align: center;
+    padding: 8px;
+    background-color: #f0f0f0;
+    color: #3498db;
+    cursor: pointer;
+    font-size: 13px;
+    border-top: 1px solid #eaeaea;
+    transition: background-color 0.2s;
+}
+
+.show-more-btn:hover {
+    background-color: #e0e0e0;
+    color: #2980b9;
+}
+
+/* Legend styling */
+.connection-legend {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    background-color: rgba(255, 255, 255, 0.85);
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    font-size: 12px;
+    z-index: 1000;
+}
+
+/* Speed legend styling */
+.speed-legend {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    background-color: rgba(255, 255, 255, 0.95);
+    padding: 12px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    font-size: 12px;
+    z-index: 1000;
+}
+
+.legend-title {
+    font-weight: bold;
+    margin-bottom: 8px;
+    text-align: center;
+    font-size: 14px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    margin: 6px 0;
+    font-size: 12px;
+}
+
+.color-box {
+    display: inline-block;
+    width: 24px;
+    height: 6px;
+    margin-right: 10px;
+}
+
+.color-box.yellow-speed {
+    background-color: #E6D72A;
+}
+
+.color-box.orange-speed {
+    background-color: #E67E22;
+}
+
+.color-box.red-speed {
+    background-color: #E74C3C;
+}
+
+.color-box.black-speed {
+    background-color: #000000;
+}
+
+/* Enhanced network node styling in company details */
+.connected-node {
+    padding: 8px 10px;
+    display: flex;
+    flex-direction: column;
+    border-bottom: 1px solid #eaeaea;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.node-main-info {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.node-ix-info {
+    margin-left: 16px;
+    margin-top: 3px;
+    font-size: 11px;
+    color: #666;
+}
+
+.node-ix {
+    background-color: #f0f7ff;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 10px;
+    color: #3498db;
+    border: 1px solid #d6e9ff;
+    display: inline-block;
+}
+
+/* Internal structure button styling */
+.internal-structure-container {
+    margin-top: 20px;
+    text-align: right;
+}
+
+.structure-button {
+    display: inline-block;
+    background-color: #3498db;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background-color 0.2s;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.structure-button:hover {
+    background-color: #2980b9;
+    text-decoration: none;
+    color: white;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+    #filter-panel {
+        width: 180px;
+    }
+    
+    #info-panel {
+        width: 250px;
+    }
+}
+
+@media (max-width: 768px) {
+    main {
+        flex-direction: column;
+    }
+    
+    #filter-panel {
+        width: 100%;
+        height: auto;
+        max-height: 30vh;
+        order: 1;
+    }
+    
+    #visualization {
+        height: 50vh;
+        order: 2;
+    }
+    
+    #info-panel {
+        width: 100%;
+        height: auto;
+        max-height: 20vh;
+        order: 3;
+    }
+}

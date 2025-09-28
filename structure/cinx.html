@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CINX Internal Structure</title>
+    <link rel="stylesheet" href="../styles.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            padding: 20px;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #3498db;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        .structure-content {
+            padding: 20px;
+            border: 1px solid #eaeaea;
+            border-radius: 5px;
+            background-color: #f9f9fa;
+        }
+        
+        /* Network topology visualization styles */
+        #topology-visualization {
+            width: 100%;
+            height: 500px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-top: 20px;
+            background-color: #fff;
+        }
+        
+        .node {
+            cursor: pointer;
+        }
+        
+        .node circle {
+            stroke: #fff;
+            stroke-width: 2px;
+        }
+        
+        .node-nls circle {
+            fill: #3498db; /* Blue for NLS nodes */
+        }
+        
+        .node-bre circle {
+            fill: #e67e22; /* Orange for BRE nodes */
+        }
+        
+        .node-dpr circle {
+            fill: #27ae60; /* Green for DPR nodes */
+        }
+        
+        .node text {
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .link {
+            stroke: #999;
+            stroke-opacity: 0.6;
+            stroke-width: 2px;
+        }
+        
+        .tooltip {
+            position: absolute;
+            padding: 8px 12px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: #fff;
+            border-radius: 4px;
+            font-size: 12px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .external-links {
+            margin: 15px 0;
+            padding: 10px;
+            background-color: #f5f5f5;
+            border-radius: 4px;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .weather-map-btn {
+            display: inline-block;
+            background-color: #3498db;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: 500;
+            margin-top: 10px;
+            transition: background-color 0.2s;
+        }
+        
+        .weather-map-btn:hover {
+            background-color: #2980b9;
+        }
+    </style>
+</head>
+<body>
+    <a href="../index.html" class="back-link">← Back to main visualization</a>
+    <h1>CINX Internal Structure</h1>
+    
+    <div class="structure-content">
+        <h2>Cape Town Internet Exchange</h2>
+        
+        <div class="external-links">
+            <h3>External Resources</h3>
+            <p>View real-time traffic and status information on the INX Portal:</p>
+            <a href="https://portal.inx.net.za/weather-map/1" class="weather-map-btn" target="_blank">
+                View CINX Weather Map →
+            </a>
+        </div>
+        
+        <p>This page displays the internal network topology of CINX showing connections between switches at different locations.</p>
+        
+        <div class="legend">
+            <h3>Legend</h3>
+            <div class="legend-item"><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#3498db;margin-right:5px;"></span> NLS - Newlands Location</div>
+            <div class="legend-item"><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#e67e22;margin-right:5px;"></span> BRE - Brackenfell Location</div>
+            <div class="legend-item"><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#27ae60;margin-right:5px;"></span> DPR - Diep River Location</div>
+        </div>
+        
+        <div id="topology-visualization"></div>
+        <div class="tooltip" id="tooltip"></div>
+        
+        <div class="topology-details">
+            <h3>Network Details</h3>
+            <p>This visualization shows the connections between primary switches at CINX's three locations in Cape Town:</p>
+            <ul>
+                <li><strong>NLS</strong>: Main location with three interconnected switches</li>
+                <li><strong>BRE</strong>: Secondary location with one switch</li>
+                <li><strong>DPR</strong>: Redundant location with two interconnected switches</li>
+            </ul>
+            <p>The topology demonstrates CINX's resilient network design with multiple pathways between locations.</p>
+        </div>
+    </div>
+    
+    <script>
+        // Network topology data
+        const topologyData = {
+            "connections": [
+                { "from": "psw3.nls", "to": "psw1.nls" },
+                { "from": "psw3.nls", "to": "psw2.nls" },
+                { "from": "psw2.nls", "to": "psw1.nls" },
+                { "from": "psw2.nls", "to": "psw1.bre" },
+                { "from": "psw1.bre", "to": "psw2.dpr" },
+                { "from": "psw2.dpr", "to": "psw1.dpr" },
+                { "from": "psw1.nls", "to": "psw1.dpr" },
+                { "from": "psw2.nls", "to": "psw1.dpr" },
+                { "from": "psw1.dpr", "to": "psw2.dpr" },
+                { "from": "psw1.nls", "to": "psw2.nls" },
+                { "from": "psw2.nls", "to": "psw3.nls" },
+                { "from": "psw1.nls", "to": "psw3.nls" },
+                { "from": "psw2.nls", "to": "psw1.bre" }
+            ]
+        };
+        
+        // Extract unique nodes
+        const nodes = Array.from(
+            new Set(
+                [...topologyData.connections.map(conn => conn.from),
+                 ...topologyData.connections.map(conn => conn.to)]
+            )
+        ).map(id => {
+            const [device, location] = id.split('.');
+            return { 
+                id, 
+                device,
+                location,
+                label: id
+            };
+        });
+        
+        // Create links
+        const links = topologyData.connections.map((conn, i) => ({
+            id: `link-${i}`,
+            source: conn.from,
+            target: conn.to
+        }));
+        
+        // Set up visualization
+        const width = document.getElementById('topology-visualization').clientWidth;
+        const height = 500;
+        
+        const svg = d3.select('#topology-visualization')
+            .append('svg')
+            .attr('width', width)
+            .attr('height', height);
+            
+        // Add zoom capability
+        const g = svg.append('g');
+        const zoom = d3.zoom()
+            .scaleExtent([0.5, 3])
+            .on('zoom', (event) => {
+                g.attr('transform', event.transform);
+            });
+        svg.call(zoom);
+            
+        // Create the force simulation
+        const simulation = d3.forceSimulation(nodes)
+            .force('link', d3.forceLink(links).id(d => d.id).distance(100))
+            .force('charge', d3.forceManyBody().strength(-300))
+            .force('center', d3.forceCenter(width / 2, height / 2))
+            .force('collision', d3.forceCollide().radius(50));
+            
+        // Create links
+        const link = g.append('g')
+            .selectAll('line')
+            .data(links)
+            .enter().append('line')
+            .attr('class', 'link');
+            
+        // Create nodes
+        const node = g.append('g')
+            .selectAll('.node')
+            .data(nodes)
+            .enter().append('g')
+            .attr('class', d => `node node-${d.location}`)
+            .call(d3.drag()
+                .on('start', dragstarted)
+                .on('drag', dragged)
+                .on('end', dragended));
+                
+        // Add circles to nodes
+        node.append('circle')
+            .attr('r', 15)
+            .on('mouseover', showTooltip)
+            .on('mouseout', hideTooltip);
+            
+        // Add text labels to nodes
+        node.append('text')
+            .attr('dy', -20)
+            .attr('text-anchor', 'middle')
+            .text(d => d.device);
+            
+        // Add location labels
+        node.append('text')
+            .attr('dy', 30)
+            .attr('text-anchor', 'middle')
+            .attr('class', 'location-label')
+            .text(d => d.location);
+            
+        // Update positions on simulation tick
+        simulation.on('tick', () => {
+            link
+                .attr('x1', d => d.source.x)
+                .attr('y1', d => d.source.y)
+                .attr('x2', d => d.target.x)
+                .attr('y2', d => d.target.y);
+                
+            node.attr('transform', d => `translate(${d.x},${d.y})`);
+        });
+        
+        // Tooltip functions
+        function showTooltip(event, d) {
+            const tooltip = d3.select('#tooltip')
+                .style('opacity', 0.9)
+                .html(`
+                    <strong>${d.id}</strong><br>
+                    Device: ${d.device}<br>
+                    Location: ${d.location}
+                `)
+                .style('left', (event.pageX + 10) + 'px')
+                .style('top', (event.pageY - 28) + 'px');
+        }
+        
+        function hideTooltip() {
+            d3.select('#tooltip').style('opacity', 0);
+        }
+        
+        // Drag functions
+        function dragstarted(event, d) {
+            if (!event.active) simulation.alphaTarget(0.3).restart();
+            d.fx = d.x;
+            d.fy = d.y;
+        }
+        
+        function dragged(event, d) {
+            d.fx = event.x;
+            d.fy = event.y;
+        }
+        
+        function dragended(event, d) {
+            if (!event.active) simulation.alphaTarget(0);
+            d.fx = null;
+            d.fy = null;
+        }
+    </script>
+</body>
+</html>

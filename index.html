@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network Node Visualization</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+    <header>
+        <h1>Network Node Visualization</h1>
+    </header>
+    <main>
+        <div id="filter-panel">
+            <h2>Filters</h2>
+            <!-- Add search section at the top -->
+            <div class="filter-section">
+                <h3>Search</h3>
+                <div class="search-container">
+                    <input type="text" id="search-input" placeholder="Search nodes...">
+                    <button id="search-clear">✕</button>
+                </div>
+                <div id="search-results"></div>
+            </div>
+            <!-- Existing filter section -->
+            <div class="filter-section">
+                <h3>Internet Exchanges</h3>
+                <div id="ix-filters">
+                    <!-- IX filters will be dynamically inserted here -->
+                </div>
+            </div>
+        </div>
+        <div id="visualization"></div>
+        <div id="info-panel">
+            <h2>Node Information</h2>
+            <div id="node-details">
+                <p>Click on a node to see details</p>
+            </div>
+        </div>
+    </main>
+    <script src="js/main.js"></script>
+</body>
+</html>

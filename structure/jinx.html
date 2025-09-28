@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JINX Internal Structure</title>
+    <link rel="stylesheet" href="../styles.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            padding: 20px;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #3498db;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        .structure-content {
+            padding: 20px;
+            border: 1px solid #eaeaea;
+            border-radius: 5px;
+            background-color: #f9f9fa;
+        }
+        
+        /* Network topology visualization styles */
+        #topology-visualization {
+            width: 100%;
+            height: 600px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-top: 20px;
+            background-color: #fff;
+        }
+        
+        .node {
+            cursor: pointer;
+        }
+        
+        .node circle {
+            stroke: #fff;
+            stroke-width: 2px;
+        }
+        
+        .node-smr circle {
+            fill: #3498db; /* Blue for SMR nodes */
+        }
+        
+        .node-pkl circle {
+            fill: #e67e22; /* Orange for PKL nodes */
+        }
+        
+        .node-iso circle {
+            fill: #27ae60; /* Green for ISO nodes */
+        }
+        
+        .node-dpa circle {
+            fill: #9b59b6; /* Purple for DPA nodes */
+        }
+        
+        .node-hwh circle {
+            fill: #e74c3c; /* Red for HWH nodes */
+        }
+        
+        .node-joh circle {
+            fill: #f1c40f; /* Yellow for JOH nodes */
+        }
+        
+        .node text {
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .link {
+            stroke: #999;
+            stroke-opacity: 0.6;
+            stroke-width: 2px;
+        }
+        
+        .tooltip {
+            position: absolute;
+            padding: 8px 12px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: #fff;
+            border-radius: 4px;
+            font-size: 12px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .legend {
+            margin: 20px 0;
+            padding: 10px;
+            background-color: #f5f5f5;
+            border-radius: 4px;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .legend h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+        
+        .legend-item {
+            margin: 5px 0;
+            display: flex;
+            align-items: center;
+        }
+        
+        .legend-color {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .topology-details {
+            margin-top: 20px;
+        }
+        
+        .external-links {
+            margin: 15px 0;
+            padding: 10px;
+            background-color: #f5f5f5;
+            border-radius: 4px;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .weather-map-btn {
+            display: inline-block;
+            background-color: #3498db;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: 500;
+            margin-top: 10px;
+            transition: background-color 0.2s;
+        }
+        
+        .weather-map-btn:hover {
+            background-color: #2980b9;
+        }
+    </style>
+</head>
+<body>
+    <a href="../index.html" class="back-link">← Back to main visualization</a>
+    <h1>JINX Internal Structure</h1>
+    
+    <div class="structure-content">
+        <h2>Johannesburg Internet Exchange</h2>
+        
+        <div class="external-links">
+            <h3>External Resources</h3>
+            <p>View real-time traffic and status information on the INX Portal:</p>
+            <a href="https://portal.inx.net.za/weather-map/3" class="weather-map-btn" target="_blank">
+                View JINX Weather Map →
+            </a>
+        </div>
+        
+        <p>This page displays the internal network topology of JINX showing connections between switches across multiple locations in Johannesburg.</p>
+        
+        <div class="legend">
+            <h3>Location Legend</h3>
+            <div class="legend-item">
+                <span class="legend-color" style="background:#3498db;"></span>
+                <span>SMR - Samrand</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-color" style="background:#e67e22;"></span>
+                <span>PKL - Parklands</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-color" style="background:#27ae60;"></span>
+                <span>ISO - Isando</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-color" style="background:#9b59b6;"></span>
+                <span>DPA - Data Park</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-color" style="background:#e74c3c;"></span>
+                <span>HWH - Halfway House</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-color" style="background:#f1c40f;"></span>
+                <span>JOH - Johannesburg</span>
+            </div>
+        </div>
+        
+        <div id="topology-visualization"></div>
+        <div class="tooltip" id="tooltip"></div>
+        
+        <div class="topology-details">
+            <h3>Network Details</h3>
+            <p>This visualization shows the complex interconnection structure of JINX across multiple data centers in the Johannesburg area:</p>
+            <ul>
+                <li><strong>SMR</strong>: Samrand location with dual switches connecting to Parklands</li>
+                <li><strong>PKL</strong>: Parklands location with core switches and connections to JOH and ISO</li>
+                <li><strong>ISO</strong>: Isando location with multiple switches forming a central hub</li>
+                <li><strong>DPA</strong>: Data Park location connecting ISO to HWH</li>
+                <li><strong>HWH</strong>: Halfway House location with dual switches</li>
+                <li><strong>JOH</strong>: Johannesburg location connecting to PKL</li>
+            </ul>
+            <p>The topology demonstrates JINX's highly resilient network design with multiple redundant pathways between locations, ensuring high availability and reliability.</p>
+        </div>
+    </div>
+    
+    <script>
+        // Network topology data
+        const topologyData = {
+          "connections": [
+            { "from": "psw1.smr", "to": "c1.pkl" },
+            { "from": "c1.pkl", "to": "c1.iso" },
+            { "from": "c1.iso", "to": "psw1.dpa" },
+            { "from": "psw1.dpa", "to": "psw2.hwh" },
+
+            { "from": "psw2.smr", "to": "c2.pkl" },
+            { "from": "c2.pkl", "to": "c2.iso" },
+            { "from": "c2.iso", "to": "psw2.hwh" },
+
+            { "from": "psw1.joh", "to": "psw1.pkl" },
+            { "from": "psw1.joh", "to": "psw2.pkl" },
+            { "from": "psw1.pkl", "to": "psw2.pkl" },
+            { "from": "psw1.pkl", "to": "c2.pkl" },
+            { "from": "psw2.pkl", "to": "c2.pkl" },
+
+            { "from": "psw4.iso", "to": "psw3.iso" },
+            { "from": "psw4.iso", "to": "c2.iso" },
+            { "from": "psw3.iso", "to": "c2.iso" },
+            { "from": "psw3.iso", "to": "c1.iso" },
+            { "from": "psw2.iso", "to": "c1.iso" },
+            { "from": "psw2.iso", "to": "c2.iso" },
+            { "from": "psw1.iso", "to": "c1.iso" },
+            { "from": "psw1.iso", "to": "c2.iso" }
+          ]
+        };
+        
+        // Extract unique nodes
+        const nodes = Array.from(
+            new Set(
+                [...topologyData.connections.map(conn => conn.from),
+                 ...topologyData.connections.map(conn => conn.to)]
+            )
+        ).map(id => {
+            const [device, location] = id.split('.');
+            return { 
+                id, 
+                device,
+                location,
+                label: id
+            };
+        });
+        
+        // Create links
+        const links = topologyData.connections.map((conn, i) => ({
+            id: `link-${i}`,
+            source: conn.from,
+            target: conn.to
+        }));
+        
+        // Set up visualization
+        const width = document.getElementById('topology-visualization').clientWidth;
+        const height = 600;
+        
+        const svg = d3.select('#topology-visualization')
+            .append('svg')
+            .attr('width', width)
+            .attr('height', height);
+            
+        // Add zoom capability
+        const g = svg.append('g');
+        const zoom = d3.zoom()
+            .scaleExtent([0.5, 3])
+            .on('zoom', (event) => {
+                g.attr('transform', event.transform);
+            });
+        svg.call(zoom);
+            
+        // Create the force simulation
+        const simulation = d3.forceSimulation(nodes)
+            .force('link', d3.forceLink(links).id(d => d.id).distance(120))
+            .force('charge', d3.forceManyBody().strength(-400))
+            .force('center', d3.forceCenter(width / 2, height / 2))
+            .force('collision', d3.forceCollide().radius(60));
+            
+        // Add forces to group nodes by location
+        simulation.force('x', d3.forceX().x(d => {
+            switch(d.location) {
+                case 'smr': return width * 0.15;
+                case 'pkl': return width * 0.35;
+                case 'iso': return width * 0.65;
+                case 'hwh': return width * 0.85;
+                case 'dpa': return width * 0.75;
+                case 'joh': return width * 0.25;
+                default: return width / 2;
+            }
+        }).strength(0.1));
+        
+        simulation.force('y', d3.forceY().y(d => {
+            switch(d.location) {
+                case 'smr': return height * 0.2;
+                case 'pkl': return height * 0.4;
+                case 'iso': return height * 0.5;
+                case 'hwh': return height * 0.7;
+                case 'dpa': return height * 0.6;
+                case 'joh': return height * 0.2;
+                default: return height / 2;
+            }
+        }).strength(0.1));
+            
+        // Create links
+        const link = g.append('g')
+            .selectAll('line')
+            .data(links)
+            .enter().append('line')
+            .attr('class', 'link');
+            
+        // Create nodes
+        const node = g.append('g')
+            .selectAll('.node')
+            .data(nodes)
+            .enter().append('g')
+            .attr('class', d => `node node-${d.location}`)
+            .call(d3.drag()
+                .on('start', dragstarted)
+                .on('drag', dragged)
+                .on('end', dragended));
+                
+        // Add circles to nodes
+        node.append('circle')
+            .attr('r', 15)
+            .on('mouseover', showTooltip)
+            .on('mouseout', hideTooltip);
+            
+        // Add text labels to nodes
+        node.append('text')
+            .attr('dy', -20)
+            .attr('text-anchor', 'middle')
+            .text(d => d.device);
+            
+        // Add location labels (smaller and below)
+        node.append('text')
+            .attr('dy', 30)
+            .attr('text-anchor', 'middle')
+            .attr('class', 'location-label')
+            .attr('font-size', '10px')
+            .text(d => d.location);
+            
+        // Update positions on simulation tick
+        simulation.on('tick', () => {
+            link
+                .attr('x1', d => d.source.x)
+                .attr('y1', d => d.source.y)
+                .attr('x2', d => d.target.x)
+                .attr('y2', d => d.target.y);
+                
+            node.attr('transform', d => `translate(${d.x},${d.y})`);
+        });
+        
+        // Tooltip functions
+        function showTooltip(event, d) {
+            const tooltip = d3.select('#tooltip')
+                .style('opacity', 0.9)
+                .html(`
+                    <strong>${d.id}</strong><br>
+                    Device: ${d.device}<br>
+                    Location: ${d.location}
+                `)
+                .style('left', (event.pageX + 10) + 'px')
+                .style('top', (event.pageY - 28) + 'px');
+        }
+        
+        function hideTooltip() {
+            d3.select('#tooltip').style('opacity', 0);
+        }
+        
+        // Drag functions
+        function dragstarted(event, d) {
+            if (!event.active) simulation.alphaTarget(0.3).restart();
+            d.fx = d.x;
+            d.fy = d.y;
+        }
+        
+        function dragged(event, d) {
+            d.fx = event.x;
+            d.fy = event.y;
+        }
+        
+        function dragended(event, d) {
+            if (!event.active) simulation.alphaTarget(0);
+            // Keep nodes where they're dragged to
+            // Comment these out to make nodes spring back
+            // d.fx = null;
+            // d.fy = null;
+        }
+    </script>
+</body>
+</html>
