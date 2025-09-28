@@ -1,5 +1,7 @@
 # South Africa Network Visualization
 
+https://veergosai.github.io/ZA-Network/
+
 An interactive visualization tool for exploring network interconnections between Internet Exchanges, service providers, and companies across South Africa.
 
 
